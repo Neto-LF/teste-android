@@ -1,12 +1,12 @@
 package com.example.meuapp;
 
-import androidx.appcompat.app.AppCompatActivity;
-
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
+
+import androidx.appcompat.app.AppCompatActivity;
 
 import com.android.volley.Cache;
 import com.android.volley.Network;
@@ -18,9 +18,7 @@ import com.android.volley.toolbox.BasicNetwork;
 import com.android.volley.toolbox.DiskBasedCache;
 import com.android.volley.toolbox.HurlStack;
 import com.android.volley.toolbox.JsonObjectRequest;
-import com.android.volley.toolbox.StringRequest;
 import com.google.gson.Gson;
-import com.google.gson.JsonSyntaxException;
 import com.google.gson.reflect.TypeToken;
 
 import org.json.JSONException;
@@ -30,24 +28,28 @@ import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
 
+public class MainActivity<elementos> extends AppCompatActivity {
 
-public class MainActivity extends AppCompatActivity {
-
-    private static final String TAG = "MainActivity" ;
-    TextView textView;
-    Button button;
+    private static final String TAG = "MainActivity";
+    TextView textView, textView2;
+    Button btnAvanca, btnVoltar;
     RequestQueue requestQueue;
+    int posicaoCorrente = 0;
+
+    List<Data> listaRegistros = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-
         super.onCreate(savedInstanceState);
-
         setContentView(R.layout.activity_main);
 
-        textView = findViewById(R.id.textView);
 
-        button = findViewById(R.id.button);
+        textView = findViewById(R.id.textView);
+        textView2 = findViewById(R.id.textView2);
+
+        btnVoltar = findViewById(R.id.btnVolta);
+        btnAvanca = findViewById(R.id.btnAvanca);
+
 
         Cache cache = new DiskBasedCache(getCacheDir(), 1024 * 1024);
 
@@ -61,94 +63,48 @@ public class MainActivity extends AppCompatActivity {
         requestQueue.start();
 
 
-        button.setOnClickListener(new View.OnClickListener() {
+        btnVoltar.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-//                exibelista();
-                elementos();
+
+                if (posicaoCorrente < listaRegistros.size() && posicaoCorrente > 0) {
+
+                    posicaoCorrente--;
+                    Data data = listaRegistros.get(posicaoCorrente);
+                    textView.setText(data.getName());
+                    textView2.setText(data.getEmail());
+
+                    System.out.println(data.getName() + "-" + data.getEmail());
+                }
 
             }
         });
 
+        btnAvanca.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                if (posicaoCorrente < listaRegistros.size()) {
+
+
+                    Data data1 = listaRegistros.get(posicaoCorrente);
+                    posicaoCorrente++;
+                    textView.setText(data1.getName());
+                    textView2.setText(data1.getEmail());
+
+                    System.out.println(data1.getName() + "-" + data1.getEmail());
+
+               }
+            }
+
+        });
 
     }
 
 
-    public void exibelista() {
-        List<String> lista = new ArrayList<>();
+    public int elementos() {
 
-        for (int i = 0; i < 20; i++) {
-            lista.add(String.valueOf(i));
-
-
-            System.out.println(i);
-        }
-
-        String resultado = "  ";
-
-        for (int i = 0; i < lista.size(); i++) {
-            resultado += lista.get(i) + "  \n  ";
-        }
-
-
-        textView.setText(resultado);
-
-
-    }
-
-//    public void elementos() {
-//
-//        String url = "https://gorest.co.in/public-api/users";
-//
-//        StringBuilder sb = new StringBuilder();
-//
-//
-//        StringRequest stringRequest = new StringRequest(Request.Method.GET, url,
-//                new Response.Listener<String>() {
-//                    @Override
-//                    public void onResponse(String response) {
-//
-//                        try {
-//                            Gson gson = new Gson();
-//
-//
-//                            List<Data> list = new ArrayList<>();
-//
-//                            Type tp = new TypeToken<List<Data>>() {
-//                            }.getType();
-//
-//
-//                            list = gson.fromJson(response,tp );
-//
-//                            for (int i = 0; i < list.size(); i++) {
-//                                sb.append(list.get(i).name + " -- " + list.get(i).email);
-//                                sb.append("\n");
-//
-//                            }
-//
-////                        System.out.println(sb.toString());
-//
-//                            textView.setText(sb.toString());
-//                        } catch (JsonSyntaxException e) {
-//                            e.printStackTrace();
-//                        }
-//                    }
-//                },
-//                new Response.ErrorListener() {
-//                    @Override
-//                    public void onErrorResponse(VolleyError error) {
-//
-//                        System.out.println();
-//                    }
-//                });
-//
-//
-//        requestQueue.add(stringRequest);
-//
-//
-//    }
-    public void elementos() {
-
+        final List<Data>[] retorno = new ArrayList[1];
         String url = "https://gorest.co.in/public-api/users";
 
         StringBuilder sb = new StringBuilder();
@@ -169,23 +125,16 @@ public class MainActivity extends AppCompatActivity {
 
 
                         try {
-                            list = gson.fromJson(response.getJSONArray("data").toString(),tp );
+                            list = gson.fromJson(response.getJSONArray("data").toString(), tp);
                         } catch (JSONException e) {
                             e.printStackTrace();
                         }
+                        listaRegistros = list;
 
-                        for (int i = 0; i < list.size(); i++) {
-                            sb.append(list.get(i).name + " -- " + list.get(i).email);
-                            sb.append("\n");
 
-                        }
+                        Log.d(TAG, "onResponse: " + list.size());
 
-//                        System.out.println(sb.toString());
-                        Log.d(TAG, "onResponse: " + sb.toString());
 
-                        textView.setText(sb.toString());
-
-//                        textView.setText("Response: " + response.toString());
                     }
                 }, new Response.ErrorListener() {
 
@@ -197,11 +146,20 @@ public class MainActivity extends AppCompatActivity {
                 });
         requestQueue.add(jsonObjectRequest);
 
-
+        return 0;
     }
 
+    @Override
+    protected void onStart() {
+        super.onStart();
 
+        Thread thread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                elementos();
+            }
+        });
 
+        thread.start();
+    }
 }
-
-

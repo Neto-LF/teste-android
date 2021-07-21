@@ -1,3 +1,7 @@
 <resources>
     <string name="app_name">Meu App</string>
+    <string name="title">Formulário de Usuário</string>
+    <string name="textView">Nome:</string>
+    <string name="textView2">E-mail:</string>
+    <string name="title_activity_main2">MainActivity</string>
 </resources>
