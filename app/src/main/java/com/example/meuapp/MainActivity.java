@@ -84,7 +84,7 @@ public class MainActivity<elementos> extends AppCompatActivity {
             @Override
             public void onClick(View v) {
 
-                if (posicaoCorrente < listaRegistros.size()) {
+                if (posicaoCorrente < listaRegistros.size()-1) {
 
 
                     Data data1 = listaRegistros.get(posicaoCorrente);
